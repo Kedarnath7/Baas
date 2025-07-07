@@ -2,10 +2,9 @@ package miniBaas;
 
 import org.json.JSONObject;
 //import io.grpc.stub.StreamObserver;
-import java.io.*;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.function.Consumer;
+import java.io.*;
+import java.util.*;
 
 public class WAL {
     private final String filePath;

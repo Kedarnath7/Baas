@@ -5,22 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cec7c476-923f-474d-bb6b-dd62858dc771" name="Changes" comment="">
-      <change afterPath="K:/BaaS/.idea/.gitignore" afterDir="false" />
-      <change afterPath="K:/BaaS/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="K:/BaaS/.idea/misc.xml" afterDir="false" />
-      <change afterPath="K:/BaaS/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="K:/BaaS/pom.xml" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/DatabaseServiceImpl.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/Main.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/QueryParser.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/QueryService.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/StorageService.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/miniBaas/WAL.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/java/org/example/Main.java" afterDir="false" />
-      <change afterPath="K:/BaaS/src/main/proto/query.proto" afterDir="false" />
-      <change beforePath="K:/BaaS/.gitignore" beforeDir="false" afterPath="K:/BaaS/.gitignore" afterDir="false" />
+      <change beforePath="K:/BaaS/.idea/workspace.xml" beforeDir="false" afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/miniBaas/Main.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/Main.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/miniBaas/StorageService.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/StorageService.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/miniBaas/WAL.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/WAL.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +29,7 @@
     <setting file="jar://$APPLICATION_HOME_DIR$/plugins/maven/lib/maven.jar!/schemas/maven-4.0.0.xsd" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
@@ -58,7 +46,7 @@
     "Maven.BaaS [install].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Rebasing main",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "onboarding.tips.debug.path": "K:/BaaS/src/main/java/org/example/Main.java",
     "settings.editor.selected.configurable": "preferences.pluginManager"
