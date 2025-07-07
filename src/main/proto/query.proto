@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package miniBaas.proto;
+
+service DatabaseService {
+  rpc Insert (InsertRequest) returns (InsertResponse);
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Query (QueryRequest) returns (QueryResponse);
+}
+
+message InsertRequest {
+  string collection = 1;
+  string id = 2;
+  string document = 3;
+}
+
+message InsertResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message GetRequest {
+  string collection = 1;
+  string id = 2;
+}
+
+message GetResponse {
+  string document = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message QueryRequest {
+  string collection = 1;
+  string field = 2;
+  string value = 3;
+}
+
+message QueryResponse {
+  repeated string documents = 1;
+  bool success = 2;
+  string error = 3;
+}
