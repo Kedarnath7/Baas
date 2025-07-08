@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cec7c476-923f-474d-bb6b-dd62858dc771" name="Changes" comment="">
-      <change beforePath="K:/BaaS/.idea/workspace.xml" beforeDir="false" afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/pom.xml" beforeDir="false" afterPath="K:/BaaS/pom.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/StorageService.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/StorageService.java" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/WAL.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/WAL.java" afterDir="false" />
+      <change beforePath="K:/BaaS/.gitignore" beforeDir="false" afterPath="K:/BaaS/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
