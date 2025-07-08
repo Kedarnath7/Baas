@@ -1,10 +1,10 @@
 package miniBaas;
 
 import org.json.JSONObject;
-//import io.grpc.stub.StreamObserver;
-import java.util.function.Consumer;
+
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class WAL {
     private final String filePath;
@@ -12,31 +12,30 @@ public class WAL {
     private long checkpointPosition = 0;
     private RandomAccessFile raf;
 
-    public WAL(String filePath)throws IOException{
+    public WAL(String filePath) throws IOException {
         this.filePath = filePath;
         initializeFile();
     }
 
-    private void initializeFile() throws IOException{
+    private void initializeFile() throws IOException {
         File file = new File(filePath);
-        if(!file.exists()){
+        if (!file.exists()) {
             file.createNewFile();
         }
         this.raf = new RandomAccessFile(file, "rw");
     }
 
-    public void log(Map<String, Object> entry) throws IOException{
-        synchronized(fileLock){
-            try ( FileWriter fw = new FileWriter(filePath,true);
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  PrintWriter out = new PrintWriter(bw)){
-                out.println(new JSONObject(entry).toString());
-            }
+    public void log(Map<String, Object> entry) throws IOException {
+        synchronized (fileLock) {
+            String json = new JSONObject(entry).toString() + System.lineSeparator();
+            raf.seek(raf.length());  // Go to end of file
+            raf.write(json.getBytes());
         }
     }
+
     public void markCheckpoint() throws IOException {
         synchronized (fileLock) {
-            this.checkpointPosition = raf.getFilePointer();
+            this.checkpointPosition = raf.getFilePointer(); // Store current pointer
         }
     }
 
@@ -52,22 +51,6 @@ public class WAL {
         }
     }
 
-//    public void recover(Consumer<Map<String,Object>> processor) throws IOException{
-//        synchronized(fileLock){
-//            File file = new File(filePath);
-//            if(!file.exists()) return;
-//
-//            try(Scanner scanner = new Scanner(file)){
-//                while(scanner.hasNextLine()){
-//                    String line = scanner.nextLine();
-//                    @SuppressWarnings("unchecked")
-//                    Map<String,Object> entry = new JSONObject(line).toMap();
-//                    processor.accept(entry);
-//                }
-//            }
-//        }
-//    }
-
     public void recover(Consumer<Map<String, Object>> processor) throws IOException {
         synchronized (fileLock) {
             raf.seek(0);  // Start from beginning
@@ -78,6 +61,18 @@ public class WAL {
                 processor.accept(entry);
             }
         }
+    }
+
+    public void replayAfterCheckpoint(StorageService storage) throws IOException {
+        recoverAfterCheckpoint(entry -> {
+            String collection = entry.get("collection").toString();
+            String id = entry.get("id").toString();
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> document = (Map<String, Object>) entry.get("document");
+
+            storage.insertDocument(collection, id, document, false);  // Don't log again
+        });
     }
 
     public void close() throws IOException {

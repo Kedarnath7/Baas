@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="cec7c476-923f-474d-bb6b-dd62858dc771" name="Changes" comment="">
       <change beforePath="K:/BaaS/.idea/workspace.xml" beforeDir="false" afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/Main.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/Main.java" afterDir="false" />
+      <change beforePath="K:/BaaS/pom.xml" beforeDir="false" afterPath="K:/BaaS/pom.xml" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" afterDir="false" />
       <change beforePath="K:/BaaS/src/main/java/miniBaas/StorageService.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/StorageService.java" afterDir="false" />
       <change beforePath="K:/BaaS/src/main/java/miniBaas/WAL.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/miniBaas/WAL.java" afterDir="false" />
     </list>
@@ -35,6 +36,9 @@
   &quot;associatedIndex&quot;: 1
 }</component>
   <component name="ProjectId" id="2z6FoxOzbTCyOMFG58aIvQk4V99" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -42,10 +46,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
+    "JUnit.WALTest.executor": "Run",
     "Maven.BaaS [clean].executor": "Run",
     "Maven.BaaS [install].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "onboarding.tips.debug.path": "K:/BaaS/src/main/java/org/example/Main.java",
@@ -57,7 +63,7 @@
       <recent name="K:\BaaS\src\main\proto" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="JUnit.WALTest">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="miniBaas.Main" />
       <module name="BaaS" />
@@ -71,8 +77,24 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="WALTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="BaaS" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="miniBaas.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="miniBaas" />
+      <option name="MAIN_CLASS_NAME" value="miniBaas.WALTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.WALTest" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>

@@ -1,0 +1,2 @@
+{"document":{"msg":"before"},"collection":"logs","id":"l1"}
+{"document":{"msg":"after"},"collection":"logs","id":"l2"}
