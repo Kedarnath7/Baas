@@ -20,7 +20,7 @@ public class StorageService {
     private static final String KEY_DOCUMENT = "document";
 
     public StorageService(String walPath, String snapshotDir) throws IOException {
-        this.wal = new WAL(walPath);
+        this.wal = new WAL(walPath,5, 3);
         this.snapshotDir = snapshotDir.endsWith(File.separator) ? snapshotDir : snapshotDir + File.separator;
         File snapshotFolder = new File(this.snapshotDir);
         if (!snapshotFolder.exists() && !snapshotFolder.mkdirs()) {
@@ -51,17 +51,64 @@ public class StorageService {
         }
     }
 
+    //v1
+//    public void insertDocument(String collection, String id, Map<String, Object> document, boolean logToWAL) {
+//        lock.writeLock().lock();
+//        try {
+//            collections.computeIfAbsent(collection, k -> new TreeMap<>());
+//            collections.get(collection).put(id, new HashMap<>(document));
+//
+//            // Update indexes
+//            if (indexes.containsKey(collection)) {
+//                for (String indexedField : indexes.get(collection).keySet()) {
+//                    if (document.containsKey(indexedField)) {
+//                        Object value = document.get(indexedField);
+//                        indexes.get(collection).get(indexedField)
+//                                .computeIfAbsent(value, k -> new HashSet<>())
+//                                .add(id);
+//                    }
+//                }
+//            }
+//
+//            if (logToWAL) {
+//                wal.log(Map.of(
+//                        KEY_OPERATION, "insert",
+//                        KEY_COLLECTION, collection,
+//                        KEY_ID, id,
+//                        KEY_DOCUMENT, document
+//                ));
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException("WAL write failed", e);
+//        } finally {
+//            lock.writeLock().unlock();
+//        }
+//    }
+
+    //v2
+
     public void insertDocument(String collection, String id, Map<String, Object> document, boolean logToWAL) {
         lock.writeLock().lock();
         try {
+            // Calculate expiry time if TTL is specified
+            Map<String, Object> docToStore = new HashMap<>(document);
+            if (document.containsKey("_ttl_ms")) {
+                Object ttlObj = document.get("_ttl_ms");
+                if (ttlObj instanceof Number) {
+                    long ttl = ((Number) ttlObj).longValue();
+                    long expiryTime = System.currentTimeMillis() + ttl;
+                    docToStore.put("_expiry", expiryTime);
+                }
+            }
+
             collections.computeIfAbsent(collection, k -> new TreeMap<>());
-            collections.get(collection).put(id, new HashMap<>(document));
+            collections.get(collection).put(id, docToStore);
 
             // Update indexes
             if (indexes.containsKey(collection)) {
                 for (String indexedField : indexes.get(collection).keySet()) {
-                    if (document.containsKey(indexedField)) {
-                        Object value = document.get(indexedField);
+                    if (docToStore.containsKey(indexedField)) {
+                        Object value = docToStore.get(indexedField);
                         indexes.get(collection).get(indexedField)
                                 .computeIfAbsent(value, k -> new HashSet<>())
                                 .add(id);
@@ -74,7 +121,7 @@ public class StorageService {
                         KEY_OPERATION, "insert",
                         KEY_COLLECTION, collection,
                         KEY_ID, id,
-                        KEY_DOCUMENT, document
+                        KEY_DOCUMENT, docToStore
                 ));
             }
         } catch (IOException e) {
@@ -83,6 +130,7 @@ public class StorageService {
             lock.writeLock().unlock();
         }
     }
+
 
     public void takeSnapshot() throws IOException {
         lock.writeLock().lock();
@@ -137,36 +185,110 @@ public class StorageService {
             });
         });
     }
-
+//v1
+//    public Map<String, Object> getDocument(String collection, String id) {
+//        lock.readLock().lock();
+//        try {
+//            if (!collections.containsKey(collection)) {
+//                return null;
+//            }
+//            Map<String, Object> doc = collections.get(collection).get(id);
+//            return doc != null ? new HashMap<>(doc) : null;
+//        } finally {
+//            lock.readLock().unlock();
+//        }
+//    }
+//v2
     public Map<String, Object> getDocument(String collection, String id) {
-        lock.readLock().lock();
+        lock.writeLock().lock();  // Use write lock because we might remove expired doc
         try {
             if (!collections.containsKey(collection)) {
                 return null;
             }
+
             Map<String, Object> doc = collections.get(collection).get(id);
-            return doc != null ? new HashMap<>(doc) : null;
+            if (doc == null) return null;
+
+            // TTL check
+            if (doc.containsKey("_expiry")) {
+                Object expiryObj = doc.get("_expiry");
+                if (expiryObj instanceof Number) {
+                    long expiryTime = ((Number) expiryObj).longValue();
+                    if (System.currentTimeMillis() > expiryTime) {
+                        // Lazy deletion of expired doc
+                        collections.get(collection).remove(id);
+                        return null;
+                    }
+                }
+            }
+
+            return new HashMap<>(doc);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
+//v1
+//    public List<Map<String, Object>> queryDocuments(String collection, String field, Object value) {
+//        lock.readLock().lock();
+//        try {
+//            List<Map<String, Object>> results = new ArrayList<>();
+//            if (!collections.containsKey(collection)) {
+//                return results;
+//            }
+//
+//            // Use index if available
+//            if (indexes.containsKey(collection) && indexes.get(collection).containsKey(field)) {
+//                Set<String> ids = indexes.get(collection).get(field).get(value);
+//                if (ids != null) {
+//                    for (String id : ids) {
+//                        Map<String, Object> doc = collections.get(collection).get(id);
+//                        if (doc != null) {
+//                            results.add(new HashMap<>(doc));
+//                        }
+//                    }
+//                    return results;
+//                }
+//            }
+//
+//            // Fallback to full scan
+//            for (Map<String, Object> doc : collections.get(collection).values()) {
+//                if (doc.containsKey(field) && Objects.equals(doc.get(field), value)) {
+//                    results.add(new HashMap<>(doc));
+//                }
+//            }
+//            return results;
+//        } finally {
+//            lock.readLock().unlock();
+//        }
+//    }
+//v2
     public List<Map<String, Object>> queryDocuments(String collection, String field, Object value) {
-        lock.readLock().lock();
+        lock.writeLock().lock(); // Upgrade to writeLock for lazy expiry deletion
         try {
             List<Map<String, Object>> results = new ArrayList<>();
             if (!collections.containsKey(collection)) {
                 return results;
             }
 
+            NavigableMap<String, Map<String, Object>> docs = collections.get(collection);
+            long now = System.currentTimeMillis();
+
             // Use index if available
             if (indexes.containsKey(collection) && indexes.get(collection).containsKey(field)) {
                 Set<String> ids = indexes.get(collection).get(field).get(value);
                 if (ids != null) {
-                    for (String id : ids) {
-                        Map<String, Object> doc = collections.get(collection).get(id);
+                    Iterator<String> iterator = ids.iterator();
+                    while (iterator.hasNext()) {
+                        String id = iterator.next();
+                        Map<String, Object> doc = docs.get(id);
                         if (doc != null) {
-                            results.add(new HashMap<>(doc));
+                            if (isExpired(doc, now)) {
+                                docs.remove(id); // lazy removal
+                                iterator.remove(); // clean index
+                            } else {
+                                results.add(new HashMap<>(doc));
+                            }
                         }
                     }
                     return results;
@@ -174,14 +296,23 @@ public class StorageService {
             }
 
             // Fallback to full scan
-            for (Map<String, Object> doc : collections.get(collection).values()) {
+            Iterator<Map.Entry<String, Map<String, Object>>> iterator = docs.entrySet().iterator();
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                Map<String, Object> doc = entry.getValue();
+                if (isExpired(doc, now)) {
+                    iterator.remove(); // lazy removal
+                    continue;
+                }
+
                 if (doc.containsKey(field) && Objects.equals(doc.get(field), value)) {
                     results.add(new HashMap<>(doc));
                 }
             }
+
             return results;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
@@ -207,4 +338,18 @@ public class StorageService {
             lock.writeLock().unlock();
         }
     }
+    public boolean isExpired(Map<String, Object> doc) {
+        return isExpired(doc, System.currentTimeMillis());
+    }
+
+    public boolean isExpired(Map<String, Object> doc, long now) {
+        if (doc.containsKey("_expiry")) {
+            Object expiryObj = doc.get("_expiry");
+            if (expiryObj instanceof Number) {
+                return now > ((Number) expiryObj).longValue();
+            }
+        }
+        return false;
+    }
+
 }

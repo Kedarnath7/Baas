@@ -62,11 +62,11 @@ public class StorageServiceTest {
         storage.insertDocument("users", "u3", Map.of("job", "engineer"), false);
 
 
-        SnapshotManager sm1 = new SnapshotManager(storage, new WAL(WAL_PATH), SNAPSHOT_DIR);
+        SnapshotManager sm1 = new SnapshotManager(storage, new WAL(WAL_PATH,5,3), SNAPSHOT_DIR);
         sm1.takeSnapshot();
 
         StorageService restored = new StorageService(WAL_PATH, SNAPSHOT_DIR);
-        WAL restoredWAL = new WAL(WAL_PATH);
+        WAL restoredWAL = new WAL(WAL_PATH,5,3);
         SnapshotManager sm2 = new SnapshotManager(restored, restoredWAL, SNAPSHOT_DIR);
         sm2.restore();
 

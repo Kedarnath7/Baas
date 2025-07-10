@@ -14,52 +14,30 @@ import miniBaas.proto.Query.GetResponse;
 import miniBaas.proto.Query.QueryResponse;
 import miniBaas.QueryParser.ParsedQuery;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import miniBaas.QueryParser.ParsedQuery;
+import miniBaas.proto.DatabaseServiceGrpc;
+import org.json.JSONObject;
+
 public class QueryService {
     private final ManagedChannel channel;
-    private final DatabaseServiceGrpc.DatabaseServiceBlockingStub blockingStub;
+    private final QueryExecutor executor;
 
     public QueryService(String host, int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
-        this.blockingStub = DatabaseServiceGrpc.newBlockingStub(channel);
+
+        DatabaseServiceGrpc.DatabaseServiceBlockingStub stub =
+                DatabaseServiceGrpc.newBlockingStub(channel);
+
+        this.executor = new QueryExecutor(stub);
     }
 
     public JSONObject executeQuery(String queryJson) {
         ParsedQuery query = QueryParser.parse(queryJson);
-
-        switch (query.type) {
-            case GET_BY_ID:
-                GetResponse getResponse = blockingStub.get(GetRequest.newBuilder()
-                        .setCollection(query.collection)
-                        .setId(query.id)
-                        .build());
-
-                if (!getResponse.getSuccess()) {
-                    throw new RuntimeException("Query failed: " + getResponse.getError());
-                }
-                return new JSONObject(getResponse.getDocument());
-
-            case FILTER:
-                QueryResponse queryResponse = blockingStub.query(QueryRequest.newBuilder()
-                        .setCollection(query.collection)
-                        .setField(query.field)
-                        .setValue(query.value.toString())
-                        .build());
-
-                if (!queryResponse.getSuccess()) {
-                    throw new RuntimeException("Query failed: " + queryResponse.getError());
-                }
-
-                JSONArray results = new JSONArray();
-                for (String doc : queryResponse.getDocumentsList()) {
-                    results.put(new JSONObject(doc));
-                }
-                return new JSONObject().put("results", results);
-
-            default:
-                throw new IllegalArgumentException("Unknown query type");
-        }
+        return executor.execute(query);
     }
 
     public void shutdown() {

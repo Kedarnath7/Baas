@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WALTest {
 
     private static final String TEST_WAL_PATH = "./testdata/testwal.log";
+    private static final int MAX_SIZE_BYTES = 5; // 5MB
+    private static final int RETENTION_COUNT = 3;
     private WAL wal;
 
     @BeforeEach
@@ -18,7 +20,7 @@ public class WALTest {
         Files.createDirectories(new File("./testdata").toPath());
         File walFile = new File(TEST_WAL_PATH);
         if (walFile.exists()) walFile.delete();
-        wal = new WAL(TEST_WAL_PATH);
+        wal = new WAL(TEST_WAL_PATH, MAX_SIZE_BYTES, RETENTION_COUNT);
     }
 
     @AfterEach

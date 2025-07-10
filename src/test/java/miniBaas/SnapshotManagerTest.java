@@ -29,7 +29,7 @@ public class SnapshotManagerTest {
         if (walFile.exists()) walFile.delete();
 
         storage = new StorageService(TEST_WAL_PATH, TEST_SNAPSHOT_DIR);
-        wal = new WAL(TEST_WAL_PATH);
+        wal = new WAL(TEST_WAL_PATH,5,3);
         snapshotManager = new SnapshotManager(storage, wal, TEST_SNAPSHOT_DIR);
     }
 
@@ -51,7 +51,7 @@ public class SnapshotManagerTest {
 
         // Step 2: Restore into fresh storage
         StorageService freshStorage = new StorageService(TEST_WAL_PATH, TEST_SNAPSHOT_DIR);
-        WAL freshWal = new WAL(TEST_WAL_PATH);
+        WAL freshWal = new WAL(TEST_WAL_PATH,5,3);
         SnapshotManager freshManager = new SnapshotManager(freshStorage, freshWal, TEST_SNAPSHOT_DIR);
         freshManager.restore();
 
