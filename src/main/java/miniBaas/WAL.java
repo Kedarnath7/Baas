@@ -127,6 +127,11 @@ public class WAL {
 
     private List<File> getRotatedLogs() {
         File dir = walFile.getParentFile();
+        if (dir == null) {
+            System.err.println("WAL parent directory is null. No rotated logs found.");
+            return List.of();
+        }
+
         String baseName = walFile.getName();
 
         File[] rotated = dir.listFiles(f ->
@@ -138,6 +143,7 @@ public class WAL {
                 .sorted(Comparator.comparing(File::getName))
                 .toList();
     }
+
 
     public void close() throws IOException {
         if (raf != null) raf.close();

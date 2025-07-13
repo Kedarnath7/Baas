@@ -1,17 +1,23 @@
 package miniBaas;
+//
+//import java.util.*;
+//
+//import io.grpc.stub.StreamObserver;
+//import miniBaas.proto.*;
+//import org.json.JSONObject;
+//import miniBaas.proto.DatabaseServiceGrpc;
+//import miniBaas.proto.Query.InsertRequest;
+//import miniBaas.proto.Query.GetRequest;
+//import miniBaas.proto.Query.QueryRequest;
+//import miniBaas.proto.Query.InsertResponse;
+//import miniBaas.proto.Query.GetResponse;
+//import miniBaas.proto.Query.QueryResponse;
 
 import java.util.*;
-
 import io.grpc.stub.StreamObserver;
 import miniBaas.proto.*;
 import org.json.JSONObject;
-import miniBaas.proto.DatabaseServiceGrpc;
-import miniBaas.proto.Query.InsertRequest;
-import miniBaas.proto.Query.GetRequest;
-import miniBaas.proto.Query.QueryRequest;
-import miniBaas.proto.Query.InsertResponse;
-import miniBaas.proto.Query.GetResponse;
-import miniBaas.proto.Query.QueryResponse;
+import miniBaas.proto.Query.*;
 
 public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImplBase {
     private final StorageService storage;
@@ -32,11 +38,13 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
             );
             responseObserver.onNext(InsertResponse.newBuilder()
                     .setSuccess(true)
+                    .setCode(ErrorCode.OK)
                     .build());
         } catch (Exception e) {
             responseObserver.onNext(InsertResponse.newBuilder()
                     .setSuccess(false)
                     .setError(e.getMessage())
+                    .setCode(ErrorCode.INVALID_DOCUMENT) // could be refined based on exception type
                     .build());
         }
         responseObserver.onCompleted();
@@ -53,17 +61,20 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
                 responseObserver.onNext(GetResponse.newBuilder()
                         .setSuccess(false)
                         .setError("Document not found")
+                        .setCode(ErrorCode.NOT_FOUND)
                         .build());
             } else {
                 responseObserver.onNext(GetResponse.newBuilder()
                         .setSuccess(true)
                         .setDocument(new JSONObject(document).toString())
+                        .setCode(ErrorCode.OK)
                         .build());
             }
         } catch (Exception e) {
             responseObserver.onNext(GetResponse.newBuilder()
                     .setSuccess(false)
                     .setError(e.getMessage())
+                    .setCode(ErrorCode.INTERNAL_ERROR)
                     .build());
         }
         responseObserver.onCompleted();
@@ -77,7 +88,9 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
                     request.getField(),
                     request.getValue()
             );
-            QueryResponse.Builder response = QueryResponse.newBuilder().setSuccess(true);
+            QueryResponse.Builder response = QueryResponse.newBuilder()
+                    .setSuccess(true)
+                    .setCode(ErrorCode.OK);
             for (Map<String, Object> doc : documents) {
                 response.addDocuments(new JSONObject(doc).toString());
             }
@@ -86,6 +99,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
             responseObserver.onNext(QueryResponse.newBuilder()
                     .setSuccess(false)
                     .setError(e.getMessage())
+                    .setCode(ErrorCode.INTERNAL_ERROR)
                     .build());
         }
         responseObserver.onCompleted();

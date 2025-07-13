@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -16,33 +18,27 @@ public class QueryServiceTest {
     private QueryService service;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws Exception {
+        // Mock the gRPC stub
         stubMock = mock(DatabaseServiceGrpc.DatabaseServiceBlockingStub.class);
 
-        // Injecting stub into a custom subclass to bypass channel creation
-        service = new QueryService("localhost", 9090) {
-            {
-                // Replace blockingStub with mocked one
-                this.shutdown(); // avoid starting real connection
-                try {
-                    var blockingStubField = QueryService.class.getDeclaredField("blockingStub");
-                    blockingStubField.setAccessible(true);
-                    blockingStubField.set(this, stubMock);
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to inject mock stub", e);
-                }
-            }
+        // Create dummy ConfigLoader (mocked file not needed)
+        ConfigLoader dummyConfig = mock(ConfigLoader.class);
+        when(dummyConfig.get("auth.token")).thenReturn("test-token");
+        when(dummyConfig.get("grpc.cert")).thenReturn("src/main/resources/certs/server.crt");
 
-            @Override
-            public void shutdown() {
-                // Skip real channel shutdown
-            }
-        };
+        // Instantiate service (we won’t use real TLS channel in tests)
+        service = new QueryService("localhost", 9090, dummyConfig);
+
+        // Inject mock executor using reflection
+        Field executorField = QueryService.class.getDeclaredField("executor");
+        executorField.setAccessible(true);
+        executorField.set(service, new QueryExecutor(stubMock));
     }
 
     @Test
     public void testGetByIdQuery() {
-        // Mock gRPC response
+        // Simulate gRPC response
         GetResponse mockResponse = GetResponse.newBuilder()
                 .setSuccess(true)
                 .setDocument("{\"name\": \"Alice\", \"role\": \"admin\"}")

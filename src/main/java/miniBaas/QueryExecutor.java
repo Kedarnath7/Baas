@@ -3,6 +3,7 @@ package miniBaas;
 import miniBaas.proto.*;
 import miniBaas.proto.Query.*;
 import miniBaas.QueryParser.ParsedQuery;
+import miniBaas.QueryParser.QueryType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,7 +23,7 @@ public class QueryExecutor {
                         .build());
 
                 if (!getResponse.getSuccess()) {
-                    throw new RuntimeException("Query failed: " + getResponse.getError());
+                    throw new RuntimeException("Query failed: " + getResponse.getCode() + " - " + getResponse.getError());
                 }
                 return new JSONObject(getResponse.getDocument());
 
@@ -34,7 +35,7 @@ public class QueryExecutor {
                         .build());
 
                 if (!queryResponse.getSuccess()) {
-                    throw new RuntimeException("Query failed: " + queryResponse.getError());
+                    throw new RuntimeException("Query failed: " + queryResponse.getCode() + " - " + queryResponse.getError());
                 }
 
                 JSONArray results = new JSONArray();
@@ -42,6 +43,20 @@ public class QueryExecutor {
                     results.put(new JSONObject(doc));
                 }
                 return new JSONObject().put("results", results);
+
+            case COMPOUND:
+                JSONArray compoundResults = new JSONArray();
+                for (ParsedQuery sub : query.subqueries) {
+                    JSONObject subResult = execute(sub);
+                    if (subResult.has("results")) {
+                        for (Object obj : subResult.getJSONArray("results")) {
+                            compoundResults.put(obj);
+                        }
+                    } else {
+                        compoundResults.put(subResult);
+                    }
+                }
+                return new JSONObject().put("results", compoundResults);
 
             default:
                 throw new IllegalArgumentException("Unsupported query type: " + query.type);

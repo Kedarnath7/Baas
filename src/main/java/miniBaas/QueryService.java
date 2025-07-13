@@ -1,43 +1,43 @@
 package miniBaas;
 
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import miniBaas.proto.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import io.grpc.Metadata;
+import io.grpc.ClientInterceptor;
+import io.grpc.stub.MetadataUtils;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
 import miniBaas.proto.DatabaseServiceGrpc;
-import miniBaas.proto.Query.InsertRequest;
-import miniBaas.proto.Query.GetRequest;
-import miniBaas.proto.Query.QueryRequest;
-import miniBaas.proto.Query.InsertResponse;
-import miniBaas.proto.Query.GetResponse;
-import miniBaas.proto.Query.QueryResponse;
-import miniBaas.QueryParser.ParsedQuery;
+import org.json.JSONObject;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import miniBaas.QueryParser.ParsedQuery;
-import miniBaas.proto.DatabaseServiceGrpc;
-import org.json.JSONObject;
+import javax.net.ssl.SSLException;
+import java.io.File;
 
 public class QueryService {
     private final ManagedChannel channel;
     private final QueryExecutor executor;
 
-    public QueryService(String host, int port) {
-        this.channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
+    public QueryService(String host, int port, ConfigLoader config) throws SSLException {
+        String token = config.get("auth.token");
+        String certPath = config.get("grpc.cert");
+
+        // TLS Channel + cert verification
+        this.channel = NettyChannelBuilder.forAddress(host, port)
+                .sslContext(GrpcSslContexts.forClient().trustManager(new File(certPath)).build())
                 .build();
 
+        Metadata metadata = new Metadata();
+        metadata.put(Metadata.Key.of("auth-token", Metadata.ASCII_STRING_MARSHALLER), token);
+
+        ClientInterceptor authInterceptor = MetadataUtils.newAttachHeadersInterceptor(metadata);
+
         DatabaseServiceGrpc.DatabaseServiceBlockingStub stub =
-                DatabaseServiceGrpc.newBlockingStub(channel);
+                DatabaseServiceGrpc.newBlockingStub(channel).withInterceptors(authInterceptor);
 
         this.executor = new QueryExecutor(stub);
     }
 
     public JSONObject executeQuery(String queryJson) {
-        ParsedQuery query = QueryParser.parse(queryJson);
-        return executor.execute(query);
+        return executor.execute(miniBaas.QueryParser.parse(queryJson));
     }
 
     public void shutdown() {

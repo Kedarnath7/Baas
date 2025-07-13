@@ -1,4 +1,7 @@
 testdata/
+data/
+snapshots/
+/src/main/resources/
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
