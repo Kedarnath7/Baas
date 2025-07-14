@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  baas-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: baas-server
+    ports:
+      - "6565:6565"
+    volumes:
+      - ./data:/app/data
+      - ./snapshots:/app/snapshots
+    restart: unless-stopped

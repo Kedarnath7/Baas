@@ -1,0 +1,8 @@
+target/
+.idea/
+*.log
+*.gz
+*.dat
+*.iml
+data/
+snapshots/
