@@ -6,6 +6,7 @@
     <groupId>org.example</groupId>
     <artifactId>BaaS</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
@@ -24,17 +25,17 @@
         <!-- gRPC -->
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>1.64.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
             <version>1.64.0</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
+            <version>1.64.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
             <version>1.64.0</version>
         </dependency>
 
@@ -45,6 +46,13 @@
             <version>3.25.3</version>
         </dependency>
 
+        <!-- Required for gRPC stubs -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -53,14 +61,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- javax.annotation fix -->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-        <!-- JUnit 5 for testing -->
+        <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -68,7 +69,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito for mocking in tests -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -79,7 +79,7 @@
 
     <build>
         <plugins>
-            <!-- Protobuf Plugin -->
+            <!-- gRPC codegen plugin -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -88,9 +88,11 @@
                     <protocArtifact>com.google.protobuf:protoc:3.25.3:exe:windows-x86_64</protocArtifact>
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.64.0:exe:windows-x86_64</pluginArtifact>
+                    <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>compile</id>
                         <goals>
                             <goal>compile</goal>
                             <goal>compile-custom</goal>
@@ -99,24 +101,29 @@
                 </executions>
             </plugin>
 
-            <!-- Exec Plugin -->
+            <!-- Add generated sources to source set -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>miniBaas.Main</mainClass>
-                </configuration>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/protobuf/java</source>
+                                <source>${project.build.directory}/generated-sources/protobuf/grpc-java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
-            <!-- Surefire Plugin for JUnit -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-            </plugin>
-
-            <!-- ✅ Shade Plugin to bundle dependencies into fat JAR -->
+            <!-- Create fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -137,6 +144,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Run main class -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>miniBaas.Main</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
