@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option java_package = "com.minibaas.proto";
+option java_outer_classname = "DatabaseServiceProto";
+
+package miniBaas.proto;
+
+service DatabaseService {
+  rpc Insert (InsertRequest) returns (InsertResponse);
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Query (QueryRequest) returns (QueryResponse);
+}
+
+enum ErrorCode {
+  OK = 0;
+  NOT_FOUND = 1;
+  INVALID_DOCUMENT = 2;
+  INTERNAL_ERROR = 3;
+}
+
+message InsertRequest {
+  string collection = 1;
+  string id = 2;
+  string document = 3;
+}
+
+message InsertResponse {
+  bool success = 1;
+  string error = 2;
+  ErrorCode code = 3;
+}
+
+message GetRequest {
+  string collection = 1;
+  string id = 2;
+}
+
+message GetResponse {
+  string document = 1;
+  bool success = 2;
+  string error = 3;
+  ErrorCode code = 4;
+}
+
+message QueryRequest {
+  string collection = 1;
+  string field = 2;
+  string value = 3;
+}
+
+message QueryResponse {
+  repeated string documents = 1;
+  bool success = 2;
+  string error = 3;
+  ErrorCode code = 4;
+}
