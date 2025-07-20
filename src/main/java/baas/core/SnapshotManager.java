@@ -1,8 +1,9 @@
-package miniBaas;
+package baas.core;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class SnapshotManager {
     private final StorageService storage;

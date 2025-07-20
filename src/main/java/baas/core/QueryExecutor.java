@@ -1,9 +1,9 @@
-package miniBaas;
+package baas.core;
 
-import miniBaas.proto.*;
-import miniBaas.proto.Query.*;
-import miniBaas.QueryParser.ParsedQuery;
-import miniBaas.QueryParser.QueryType;
+import com.minibaas.proto.DatabaseServiceGrpc;
+import com.minibaas.proto.DatabaseServiceProto.*;
+//import com.minibaas.proto.QueryParser.ParsedQuery;
+import baas.core.QueryParser.ParsedQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

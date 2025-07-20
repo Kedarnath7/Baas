@@ -1,6 +1,9 @@
 syntax = "proto3";
 
-package miniBaas.proto;
+option java_package = "com.minibaas.proto";
+option java_outer_classname = "DatabaseServiceProto";
+
+package baas.proto;
 
 service DatabaseService {
   rpc Insert (InsertRequest) returns (InsertResponse);

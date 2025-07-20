@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://K:/BaaS/cli/src/main/java" charset="UTF-8" />
+    <file url="file://K:/BaaS/cli/src/main/resources" charset="UTF-8" />
+    <file url="file://K:/BaaS/core/src/main/java" charset="UTF-8" />
+    <file url="file://K:/BaaS/core/src/main/resources" charset="UTF-8" />
     <file url="file://K:/BaaS/src/main/java" charset="UTF-8" />
+    <file url="file://K:/BaaS/src/main/proto" charset="UTF-8" />
     <file url="file://K:/BaaS/src/main/resources" charset="UTF-8" />
+    <file url="file://K:/BaaS/target/generated-sources/protobuf/grpc-java" charset="UTF-8" />
+    <file url="file://K:/BaaS/target/generated-sources/protobuf/java" charset="UTF-8" />
   </component>
 </project>

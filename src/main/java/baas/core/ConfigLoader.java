@@ -1,4 +1,4 @@
-package miniBaas;
+package baas.core;
 
 import java.io.InputStream;
 import java.util.Properties;

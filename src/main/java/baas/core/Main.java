@@ -1,7 +1,6 @@
-package miniBaas;
+package baas.core;
 
 import io.grpc.Server;
-import io.grpc.ServerInterceptors;
 import io.grpc.netty.NettyServerBuilder;
 
 import java.io.File;

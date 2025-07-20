@@ -1,4 +1,4 @@
-package miniBaas;
+package baas.core;
 
 import io.grpc.*;
 

@@ -1,6 +1,9 @@
-package miniBaas;
+package baas.core;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -117,12 +120,12 @@ public class StorageService {
             }
 
             if (logToWAL) {
-                wal.log(Map.of(
-                        KEY_OPERATION, "insert",
-                        KEY_COLLECTION, collection,
-                        KEY_ID, id,
-                        KEY_DOCUMENT, docToStore
-                ));
+                Map<String, Object> walEntry = new HashMap<>();
+                walEntry.put(KEY_OPERATION, "insert");
+                walEntry.put(KEY_COLLECTION, collection);
+                walEntry.put(KEY_ID, id);
+                walEntry.put(KEY_DOCUMENT, docToStore);
+                wal.log(walEntry);
             }
         } catch (IOException e) {
             throw new RuntimeException("WAL write failed", e);
@@ -130,6 +133,7 @@ public class StorageService {
             lock.writeLock().unlock();
         }
     }
+
 
 
     public void takeSnapshot() throws IOException {
@@ -185,7 +189,7 @@ public class StorageService {
             });
         });
     }
-//v1
+    //v1
 //    public Map<String, Object> getDocument(String collection, String id) {
 //        lock.readLock().lock();
 //        try {
@@ -228,7 +232,7 @@ public class StorageService {
         }
     }
 
-//v1
+    //v1
 //    public List<Map<String, Object>> queryDocuments(String collection, String field, Object value) {
 //        lock.readLock().lock();
 //        try {

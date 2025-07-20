@@ -1,23 +1,12 @@
-package miniBaas;
-//
-//import java.util.*;
-//
-//import io.grpc.stub.StreamObserver;
-//import miniBaas.proto.*;
-//import org.json.JSONObject;
-//import miniBaas.proto.DatabaseServiceGrpc;
-//import miniBaas.proto.Query.InsertRequest;
-//import miniBaas.proto.Query.GetRequest;
-//import miniBaas.proto.Query.QueryRequest;
-//import miniBaas.proto.Query.InsertResponse;
-//import miniBaas.proto.Query.GetResponse;
-//import miniBaas.proto.Query.QueryResponse;
+package baas.core;
 
-import java.util.*;
+import com.minibaas.proto.DatabaseServiceGrpc;
+import com.minibaas.proto.DatabaseServiceProto.*;
 import io.grpc.stub.StreamObserver;
-import miniBaas.proto.*;
 import org.json.JSONObject;
-import miniBaas.proto.Query.*;
+
+import java.util.List;
+import java.util.Map;
 
 public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImplBase {
     private final StorageService storage;
@@ -30,21 +19,18 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     public void insert(InsertRequest request, StreamObserver<InsertResponse> responseObserver) {
         try {
             Map<String, Object> document = new JSONObject(request.getDocument()).toMap();
-            storage.insertDocument(
-                    request.getCollection(),
-                    request.getId(),
-                    document,
-                    true
-            );
+            storage.insertDocument(request.getCollection(), request.getId(), document, true);
             responseObserver.onNext(InsertResponse.newBuilder()
                     .setSuccess(true)
                     .setCode(ErrorCode.OK)
                     .build());
         } catch (Exception e) {
+            e.printStackTrace(); // full stack trace in server logs
+            String errorMsg = (e.getMessage() != null) ? e.getMessage() : e.toString();
             responseObserver.onNext(InsertResponse.newBuilder()
                     .setSuccess(false)
-                    .setError(e.getMessage())
-                    .setCode(ErrorCode.INVALID_DOCUMENT) // could be refined based on exception type
+                    .setError(errorMsg)
+                    .setCode(ErrorCode.INVALID_DOCUMENT)
                     .build());
         }
         responseObserver.onCompleted();
@@ -53,10 +39,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     @Override
     public void get(GetRequest request, StreamObserver<GetResponse> responseObserver) {
         try {
-            Map<String, Object> document = storage.getDocument(
-                    request.getCollection(),
-                    request.getId()
-            );
+            Map<String, Object> document = storage.getDocument(request.getCollection(), request.getId());
             if (document == null) {
                 responseObserver.onNext(GetResponse.newBuilder()
                         .setSuccess(false)
@@ -71,9 +54,11 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
                         .build());
             }
         } catch (Exception e) {
+            e.printStackTrace();
+            String errorMsg = (e.getMessage() != null) ? e.getMessage() : e.toString();
             responseObserver.onNext(GetResponse.newBuilder()
                     .setSuccess(false)
-                    .setError(e.getMessage())
+                    .setError(errorMsg)
                     .setCode(ErrorCode.INTERNAL_ERROR)
                     .build());
         }
@@ -83,11 +68,7 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
     @Override
     public void query(QueryRequest request, StreamObserver<QueryResponse> responseObserver) {
         try {
-            List<Map<String, Object>> documents = storage.queryDocuments(
-                    request.getCollection(),
-                    request.getField(),
-                    request.getValue()
-            );
+            List<Map<String, Object>> documents = storage.queryDocuments(request.getCollection(), request.getField(), request.getValue());
             QueryResponse.Builder response = QueryResponse.newBuilder()
                     .setSuccess(true)
                     .setCode(ErrorCode.OK);
@@ -96,9 +77,11 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
             }
             responseObserver.onNext(response.build());
         } catch (Exception e) {
+            e.printStackTrace();
+            String errorMsg = (e.getMessage() != null) ? e.getMessage() : e.toString();
             responseObserver.onNext(QueryResponse.newBuilder()
                     .setSuccess(false)
-                    .setError(e.getMessage())
+                    .setError(errorMsg)
                     .setCode(ErrorCode.INTERNAL_ERROR)
                     .build());
         }

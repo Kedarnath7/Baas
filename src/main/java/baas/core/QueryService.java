@@ -1,12 +1,13 @@
-package miniBaas;
+package baas.core;
 
+import com.minibaas.proto.DatabaseServiceGrpc;
+import com.minibaas.proto.DatabaseServiceProto.*;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
-import io.grpc.ClientInterceptor;
-import io.grpc.stub.MetadataUtils;
-import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
-import miniBaas.proto.DatabaseServiceGrpc;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.MetadataUtils;
 import org.json.JSONObject;
 
 import javax.net.ssl.SSLException;
@@ -37,7 +38,7 @@ public class QueryService {
     }
 
     public JSONObject executeQuery(String queryJson) {
-        return executor.execute(miniBaas.QueryParser.parse(queryJson));
+        return executor.execute(baas.core.QueryParser.parse(queryJson));
     }
 
     public void shutdown() {
