@@ -5,30 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cec7c476-923f-474d-bb6b-dd62858dc771" name="Changes" comment="">
-      <change beforePath="K:/BaaS/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="K:/BaaS/.idea/encodings.xml" beforeDir="false" afterPath="K:/BaaS/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/.idea/misc.xml" beforeDir="false" afterPath="K:/BaaS/.idea/misc.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/.idea/vcs.xml" beforeDir="false" afterPath="K:/BaaS/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="K:/BaaS/.baas-server.pid" beforeDir="false" afterPath="K:/BaaS/.baas-server.pid" afterDir="false" />
       <change beforePath="K:/BaaS/.idea/workspace.xml" beforeDir="false" afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/pom.xml" beforeDir="false" afterPath="K:/BaaS/pom.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/AuthInterceptor.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/ConfigLoader.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/DatabaseServiceImpl.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/Main.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/QueryExecutor.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/QueryParser.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/QueryService.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/SnapshotManager.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/StorageService.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/miniBaas/WAL.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/org/example/Main.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/main/proto/query.proto" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/DatabaseServiceImplTest.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/QueryParserTest.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/QueryServiceTest.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/SnapshotManagerTest.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/StorageServiceTest.java" beforeDir="false" />
-      <change beforePath="K:/BaaS/src/test/java/miniBaas/WALTest.java" beforeDir="false" />
+      <change beforePath="K:/BaaS/local-dev.sh" beforeDir="false" afterPath="K:/BaaS/local-dev.sh" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/baas/cli/BaasCLI.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/baas/cli/BaasCLI.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/baas/cli/BaasGrpcClient.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/baas/cli/BaasGrpcClient.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/baas/core/DatabaseServiceImpl.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/baas/core/DatabaseServiceImpl.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/java/baas/core/StorageService.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/baas/core/StorageService.java" afterDir="false" />
+      <change beforePath="K:/BaaS/src/main/proto/query.proto" beforeDir="false" afterPath="K:/BaaS/src/main/proto/query.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,27 +47,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "Application.Main.executor": "Run",
-    "JUnit.WALTest.executor": "Run",
-    "Maven.BaaS [clean].executor": "Run",
-    "Maven.BaaS [install].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHELLCHECK.PATH": "C:\\Users\\kedar\\AppData\\Roaming\\JetBrains\\IdeaIC2025.1\\plugins\\Shell Script\\shellcheck.exe",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "K:/BaaS",
-    "onboarding.tips.debug.path": "K:/BaaS/src/main/java/org/example/Main.java",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.keymap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.WALTest.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.BaaS [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.BaaS [install].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;C:\\Users\\kedar\\AppData\\Roaming\\JetBrains\\IdeaIC2025.1\\plugins\\Shell Script\\shellcheck.exe&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;K:/BaaS&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;K:/BaaS/src/main/java/org/example/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="K:\BaaS" />

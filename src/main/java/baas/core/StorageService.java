@@ -54,42 +54,6 @@ public class StorageService {
         }
     }
 
-    //v1
-//    public void insertDocument(String collection, String id, Map<String, Object> document, boolean logToWAL) {
-//        lock.writeLock().lock();
-//        try {
-//            collections.computeIfAbsent(collection, k -> new TreeMap<>());
-//            collections.get(collection).put(id, new HashMap<>(document));
-//
-//            // Update indexes
-//            if (indexes.containsKey(collection)) {
-//                for (String indexedField : indexes.get(collection).keySet()) {
-//                    if (document.containsKey(indexedField)) {
-//                        Object value = document.get(indexedField);
-//                        indexes.get(collection).get(indexedField)
-//                                .computeIfAbsent(value, k -> new HashSet<>())
-//                                .add(id);
-//                    }
-//                }
-//            }
-//
-//            if (logToWAL) {
-//                wal.log(Map.of(
-//                        KEY_OPERATION, "insert",
-//                        KEY_COLLECTION, collection,
-//                        KEY_ID, id,
-//                        KEY_DOCUMENT, document
-//                ));
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException("WAL write failed", e);
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-
-    //v2
-
     public void insertDocument(String collection, String id, Map<String, Object> document, boolean logToWAL) {
         lock.writeLock().lock();
         try {
@@ -134,75 +98,6 @@ public class StorageService {
         }
     }
 
-
-
-    public void takeSnapshot() throws IOException {
-        lock.writeLock().lock();
-        try (ObjectOutputStream out = new ObjectOutputStream(
-                new FileOutputStream(Paths.get(snapshotDir, "snapshot_" + System.currentTimeMillis() + ".dat").toString()))) {
-            out.writeObject(collections);
-            wal.markCheckpoint();
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    public Map<String, NavigableMap<String, Map<String, Object>>> getAllData() {
-        lock.readLock().lock();
-        try {
-            Map<String, NavigableMap<String, Map<String, Object>>> copy = new HashMap<>();
-            for (Map.Entry<String, NavigableMap<String, Map<String, Object>>> entry : collections.entrySet()) {
-                copy.put(entry.getKey(), new TreeMap<>(entry.getValue()));
-            }
-            return copy;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-
-    public void restoreData(Map<String, NavigableMap<String, Map<String, Object>>> data) {
-        lock.writeLock().lock();
-        try {
-            collections.clear();
-            collections.putAll(data);
-            rebuildAllIndexes();
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-
-    private void rebuildAllIndexes() {
-        indexes.forEach((collection, fieldMap) -> {
-            fieldMap.forEach((field, valueMap) -> {
-                valueMap.clear();
-                NavigableMap<String, Map<String, Object>> docs = collections.getOrDefault(collection, new TreeMap<>());
-                for (Map.Entry<String, Map<String, Object>> entry : docs.entrySet()) {
-                    String id = entry.getKey();
-                    Map<String, Object> doc = entry.getValue();
-                    if (doc.containsKey(field)) {
-                        Object value = doc.get(field);
-                        valueMap.computeIfAbsent(value, k -> new HashSet<>()).add(id);
-                    }
-                }
-            });
-        });
-    }
-    //v1
-//    public Map<String, Object> getDocument(String collection, String id) {
-//        lock.readLock().lock();
-//        try {
-//            if (!collections.containsKey(collection)) {
-//                return null;
-//            }
-//            Map<String, Object> doc = collections.get(collection).get(id);
-//            return doc != null ? new HashMap<>(doc) : null;
-//        } finally {
-//            lock.readLock().unlock();
-//        }
-//    }
-//v2
     public Map<String, Object> getDocument(String collection, String id) {
         lock.writeLock().lock();  // Use write lock because we might remove expired doc
         try {
@@ -232,41 +127,66 @@ public class StorageService {
         }
     }
 
-    //v1
-//    public List<Map<String, Object>> queryDocuments(String collection, String field, Object value) {
-//        lock.readLock().lock();
-//        try {
-//            List<Map<String, Object>> results = new ArrayList<>();
-//            if (!collections.containsKey(collection)) {
-//                return results;
-//            }
-//
-//            // Use index if available
-//            if (indexes.containsKey(collection) && indexes.get(collection).containsKey(field)) {
-//                Set<String> ids = indexes.get(collection).get(field).get(value);
-//                if (ids != null) {
-//                    for (String id : ids) {
-//                        Map<String, Object> doc = collections.get(collection).get(id);
-//                        if (doc != null) {
-//                            results.add(new HashMap<>(doc));
-//                        }
-//                    }
-//                    return results;
-//                }
-//            }
-//
-//            // Fallback to full scan
-//            for (Map<String, Object> doc : collections.get(collection).values()) {
-//                if (doc.containsKey(field) && Objects.equals(doc.get(field), value)) {
-//                    results.add(new HashMap<>(doc));
-//                }
-//            }
-//            return results;
-//        } finally {
-//            lock.readLock().unlock();
-//        }
-//    }
-//v2
+    /**
+     * Get all documents from a collection, handling TTL expiry with lazy deletion
+     * @param collection The collection name
+     * @return List of all non-expired documents in the collection
+     */
+    public List<Map<String, Object>> getAllDocuments(String collection) {
+        lock.writeLock().lock(); // Use write lock for lazy expiry deletion
+        try {
+            List<Map<String, Object>> results = new ArrayList<>();
+            if (!collections.containsKey(collection)) {
+                return results;
+            }
+
+            NavigableMap<String, Map<String, Object>> docs = collections.get(collection);
+            long now = System.currentTimeMillis();
+
+            // Iterate through all documents and remove expired ones
+            Iterator<Map.Entry<String, Map<String, Object>>> iterator = docs.entrySet().iterator();
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                String docId = entry.getKey();
+                Map<String, Object> doc = entry.getValue();
+
+                if (isExpired(doc, now)) {
+                    iterator.remove(); // lazy removal of expired document
+                    // Clean up indexes for this document
+                    cleanupIndexesForDocument(collection, docId, doc);
+                } else {
+                    results.add(new HashMap<>(doc));
+                }
+            }
+
+            return results;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Helper method to clean up indexes when a document is removed
+     */
+    private void cleanupIndexesForDocument(String collection, String docId, Map<String, Object> doc) {
+        if (indexes.containsKey(collection)) {
+            for (Map.Entry<String, Map<Object, Set<String>>> indexEntry : indexes.get(collection).entrySet()) {
+                String field = indexEntry.getKey();
+                if (doc.containsKey(field)) {
+                    Object value = doc.get(field);
+                    Set<String> docIds = indexEntry.getValue().get(value);
+                    if (docIds != null) {
+                        docIds.remove(docId);
+                        // If no more documents have this value, remove the value entry
+                        if (docIds.isEmpty()) {
+                            indexEntry.getValue().remove(value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public List<Map<String, Object>> queryDocuments(String collection, String field, Object value) {
         lock.writeLock().lock(); // Upgrade to writeLock for lazy expiry deletion
         try {
@@ -320,6 +240,58 @@ public class StorageService {
         }
     }
 
+    public void takeSnapshot() throws IOException {
+        lock.writeLock().lock();
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream(Paths.get(snapshotDir, "snapshot_" + System.currentTimeMillis() + ".dat").toString()))) {
+            out.writeObject(collections);
+            wal.markCheckpoint();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public Map<String, NavigableMap<String, Map<String, Object>>> getAllData() {
+        lock.readLock().lock();
+        try {
+            Map<String, NavigableMap<String, Map<String, Object>>> copy = new HashMap<>();
+            for (Map.Entry<String, NavigableMap<String, Map<String, Object>>> entry : collections.entrySet()) {
+                copy.put(entry.getKey(), new TreeMap<>(entry.getValue()));
+            }
+            return copy;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void restoreData(Map<String, NavigableMap<String, Map<String, Object>>> data) {
+        lock.writeLock().lock();
+        try {
+            collections.clear();
+            collections.putAll(data);
+            rebuildAllIndexes();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    private void rebuildAllIndexes() {
+        indexes.forEach((collection, fieldMap) -> {
+            fieldMap.forEach((field, valueMap) -> {
+                valueMap.clear();
+                NavigableMap<String, Map<String, Object>> docs = collections.getOrDefault(collection, new TreeMap<>());
+                for (Map.Entry<String, Map<String, Object>> entry : docs.entrySet()) {
+                    String id = entry.getKey();
+                    Map<String, Object> doc = entry.getValue();
+                    if (doc.containsKey(field)) {
+                        Object value = doc.get(field);
+                        valueMap.computeIfAbsent(value, k -> new HashSet<>()).add(id);
+                    }
+                }
+            });
+        });
+    }
+
     public void createIndex(String collection, String field) {
         lock.writeLock().lock();
         try {
@@ -342,6 +314,7 @@ public class StorageService {
             lock.writeLock().unlock();
         }
     }
+
     public boolean isExpired(Map<String, Object> doc) {
         return isExpired(doc, System.currentTimeMillis());
     }
@@ -355,5 +328,4 @@ public class StorageService {
         }
         return false;
     }
-
 }

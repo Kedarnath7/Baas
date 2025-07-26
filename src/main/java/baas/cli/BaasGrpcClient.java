@@ -30,12 +30,22 @@ public class BaasGrpcClient implements AutoCloseable {
             InsertResponse response = blockingStub.insert(
                     InsertRequest.newBuilder()
                             .setCollection(collection)
-                            .setId(id)
+                            .setId(id == null ? "" : id)
                             .setDocument(document)
                             .build());
-            return response.getSuccess() ?
-                    "Insert successful" :
-                    "Insert failed: " + response.getError();
+
+            if (response.getSuccess()) {
+                StringBuilder message = new StringBuilder("Insert successful");
+
+                // Show generated IDs if present (bulk or auto-generated single)
+                if (response.getGeneratedIdsCount() > 0) {
+                    message.append(". Generated IDs: ")
+                            .append(String.join(", ", response.getGeneratedIdsList()));
+                }
+                return message.toString();
+            } else {
+                return "Insert failed: " + response.getError();
+            }
         } catch (StatusRuntimeException e) {
             return "RPC failed: " + e.getStatus();
         }
@@ -82,6 +92,102 @@ public class BaasGrpcClient implements AutoCloseable {
                             String.join("\n", docs);
         } catch (StatusRuntimeException e) {
             return "RPC failed: " + e.getStatus();
+        }
+    }
+
+    // Enhanced query method for new CLI functionality
+    public String queryDocuments(String collection, String whereCondition,
+                                 Integer limit, String fields, String sort, boolean getAll) {
+        try {
+            // Build enhanced query request
+            EnhancedQueryRequest.Builder requestBuilder = EnhancedQueryRequest.newBuilder()
+                    .setCollection(collection)
+                    .setGetAll(getAll);
+
+            // Add where condition if provided
+            if (whereCondition != null && !whereCondition.trim().isEmpty()) {
+                requestBuilder.setWhereCondition(whereCondition);
+            }
+
+            // Add limit if provided
+            if (limit != null && limit > 0) {
+                requestBuilder.setLimit(limit);
+            }
+
+            // Add fields selection if provided
+            if (fields != null && !fields.trim().isEmpty()) {
+                requestBuilder.setFields(fields);
+            }
+
+            // Add sort if provided
+            if (sort != null && !sort.trim().isEmpty()) {
+                requestBuilder.setSort(sort);
+            }
+
+            // Make the enhanced query call
+            EnhancedQueryResponse response = blockingStub.enhancedQuery(requestBuilder.build());
+
+            if (!response.getSuccess()) {
+                return "Enhanced query failed: " + response.getError();
+            }
+
+            List<String> docs = response.getDocumentsList();
+            if (docs.isEmpty()) {
+                return "No documents found";
+            }
+
+            // Format the response
+            StringBuilder result = new StringBuilder();
+
+            // Check if resultCount is greater than 0 (instead of using hasResultCount())
+            if (response.getResultCount() > 0) {
+                result.append("Found ").append(response.getResultCount()).append(" document(s)");
+                if (response.getReturnedCount() != response.getResultCount()) {
+                    result.append(" (showing ").append(response.getReturnedCount()).append(")");
+                }
+                if (response.getHasMore()) {
+                    result.append(" - more results available");
+                }
+                result.append(":\n\n");
+            }
+
+            for (int i = 0; i < docs.size(); i++) {
+                result.append("Document ").append(i + 1).append(":\n");
+                result.append(docs.get(i));
+                if (i < docs.size() - 1) {
+                    result.append("\n\n");
+                }
+            }
+
+            return result.toString();
+
+        } catch (StatusRuntimeException e) {
+            // Fallback to existing query method if enhanced query is not available
+            if (e.getStatus().getCode() == io.grpc.Status.Code.UNIMPLEMENTED) {
+                return fallbackQuery(collection, whereCondition, limit, getAll);
+            }
+            return "RPC failed: " + e.getStatus();
+        }
+    }
+
+    // Fallback method for backward compatibility
+    private String fallbackQuery(String collection, String whereCondition, Integer limit, boolean getAll) {
+        try {
+            if (getAll) {
+                // Try to use existing query with a wildcard or special field
+                return query(collection, "*", "*");
+            } else if (whereCondition != null) {
+                // Parse simple where conditions like "field=value"
+                String[] parts = whereCondition.split("=", 2);
+                if (parts.length == 2) {
+                    String field = parts[0].trim();
+                    String value = parts[1].trim();
+                    return query(collection, field, value);
+                }
+            }
+            return "Enhanced query not supported by server. Please upgrade server or use basic query command.";
+        } catch (Exception e) {
+            return "Fallback query failed: " + e.getMessage();
         }
     }
 
