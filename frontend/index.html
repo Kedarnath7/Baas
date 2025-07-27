@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniBaaS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: '#2d5016',
+                        sage: '#8fad88',
+                        beige: '#c5b896',
+                        cream: '#f4f1e8'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-morphism {
+            background: rgba(244, 241, 232, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(143, 173, 136, 0.1);
+            transform: translateX(4px);
+        }
+
+        .sidebar-item.active {
+            background: rgba(143, 173, 136, 0.2);
+            border-right: 3px solid #8fad88;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(45, 80, 22, 0.1);
+        }
+
+        .result-panel {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .result-panel::-webkit-scrollbar-track {
+            background: #f4f1e8;
+            border-radius: 3px;
+        }
+
+        .result-panel::-webkit-scrollbar-thumb {
+            background: #8fad88;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-cream min-h-screen">
+<!-- Navigation Bar -->
+<nav class="bg-forest text-cream px-6 py-4 shadow-lg">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-sage rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-forest" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold">MiniBaaS</h1>
+            <span class="text-sage text-sm bg-forest px-2 py-1 rounded-full border border-sage">Dashboard</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 bg-sage bg-opacity-20 px-3 py-1 rounded-lg">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span class="text-sm">Connected</span>
+            </div>
+            <button class="p-2 hover:bg-sage hover:bg-opacity-20 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg min-h-screen">
+        <div class="p-6">
+            <h2 class="text-lg font-semibold text-forest mb-4">Operations</h2>
+            <nav class="space-y-2">
+                <button onclick="showSection('insert')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-forest active">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <span>Insert Document</span>
+                </button>
+                <button onclick="showSection('get')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-forest">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Get Document</span>
+                </button>
+                <button onclick="showSection('query')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-forest">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span>Query Documents</span>
+                </button>
+                <hr class="my-4 border-beige">
+                <button onclick="showSection('analytics')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-forest">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Analytics</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+        <!-- Insert Document Section -->
+        <div id="insert-section" class="section">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-forest mb-2">Insert Document</h2>
+                <p class="text-sage">Add new documents to your collections</p>
+            </div>
+
+            <div class="glass-morphism rounded-2xl p-8 card-hover shadow-lg">
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Collection Name</label>
+                        <input id="insertCollection" type="text" placeholder="users, products, orders..."
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Document Data</label>
+                        <textarea id="insertDocument"
+                                  placeholder='Single: {"name":"Alice","age":30,"email":"alice@example.com"}
+
+Multiple: [{"name":"Alice","age":30},{"name":"Bob","age":25}]'
+                                  class="w-full p-4 border-2 border-beige rounded-xl h-32 focus:outline-none focus:border-sage transition-colors bg-white font-mono text-sm"></textarea>
+                    </div>
+                    <button id="insertBtn" onclick="insertDocument()"
+                            class="bg-forest text-cream px-6 py-4 rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 font-semibold">
+                        <span id="insertBtnText">Insert Document</span>
+                        <svg id="insertSpinner" class="animate-spin h-5 w-5 text-cream hidden"
+                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-forest font-semibold mb-3">Result</h3>
+                    <div class="bg-cream p-4 rounded-xl border-2 border-beige result-panel">
+                        <p id="insertResult" class="text-forest font-mono text-sm"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Get Document Section -->
+        <div id="get-section" class="section hidden">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-forest mb-2">Get Document</h2>
+                <p class="text-sage">Retrieve a specific document by its ID</p>
+            </div>
+
+            <div class="glass-morphism rounded-2xl p-8 card-hover shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Collection Name</label>
+                        <input id="getCollection" type="text" placeholder="users, products..."
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Document ID</label>
+                        <input id="getId" type="text" placeholder="document_id_123"
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                </div>
+                <button id="getBtn" onclick="getDocument()"
+                        class="bg-forest text-cream px-6 py-4 rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 font-semibold mt-6 w-full md:w-auto">
+                    <span id="getBtnText">Get Document</span>
+                    <svg id="getSpinner" class="animate-spin h-5 w-5 text-cream hidden"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                </button>
+                <div class="mt-6">
+                    <h3 class="text-forest font-semibold mb-3">Result</h3>
+                    <div class="bg-cream p-4 rounded-xl border-2 border-beige result-panel">
+                        <pre id="getResult" class="text-forest font-mono text-sm whitespace-pre-wrap"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Query Documents Section -->
+        <div id="query-section" class="section hidden">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-forest mb-2">Query Documents</h2>
+                <p class="text-sage">Search for documents by field values</p>
+            </div>
+
+            <div class="glass-morphism rounded-2xl p-8 card-hover shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Collection Name</label>
+                        <input id="queryCollection" type="text" placeholder="users, products..."
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Field Name</label>
+                        <input id="queryField" type="text" placeholder="name, age, category..."
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-forest font-semibold mb-2">Field Value</label>
+                        <input id="queryValue" type="text" placeholder="Alice, 25, electronics..."
+                               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage transition-colors bg-white">
+                    </div>
+                </div>
+                <button id="queryBtn" onclick="queryDocuments()"
+                        class="bg-forest text-cream px-6 py-4 rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-3 font-semibold mt-6 w-full md:w-auto">
+                    <span id="queryBtnText">Query Documents</span>
+                    <svg id="querySpinner" class="animate-spin h-5 w-5 text-cream hidden"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                </button>
+                <div class="mt-6">
+                    <h3 class="text-forest font-semibold mb-3">Results</h3>
+                    <div class="bg-cream p-4 rounded-xl border-2 border-beige result-panel">
+                        <pre id="queryResult" class="text-forest font-mono text-sm whitespace-pre-wrap"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics-section" class="section hidden">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-forest mb-2">Analytics</h2>
+                <p class="text-sage">Database statistics and insights</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-morphism rounded-2xl p-6 card-hover shadow-lg text-center">
+                    <div class="w-12 h-12 bg-sage rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-forest mb-2">156</h3>
+                    <p class="text-sage">Total Documents</p>
+                </div>
+                <div class="glass-morphism rounded-2xl p-6 card-hover shadow-lg text-center">
+                    <div class="w-12 h-12 bg-beige rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-forest mb-2">12</h3>
+                    <p class="text-sage">Collections</p>
+                </div>
+                <div class="glass-morphism rounded-2xl p-6 card-hover shadow-lg text-center">
+                    <div class="w-12 h-12 bg-sage rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-forest mb-2">24ms</h3>
+                    <p class="text-sage">Avg Response</p>
+                </div>
+            </div>
+
+            <div class="glass-morphism rounded-2xl p-8 card-hover shadow-lg">
+                <h3 class="text-xl font-bold text-forest mb-4">Recent Activity</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4 p-4 bg-cream rounded-lg">
+                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span class="text-forest">Document inserted in <strong>users</strong> collection</span>
+                        <span class="text-sage text-sm ml-auto">2 minutes ago</span>
+                    </div>
+                    <div class="flex items-center space-x-4 p-4 bg-cream rounded-lg">
+                        <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <span class="text-forest">Query executed on <strong>products</strong> collection</span>
+                        <span class="text-sage text-sm ml-auto">5 minutes ago</span>
+                    </div>
+                    <div class="flex items-center space-x-4 p-4 bg-cream rounded-lg">
+                        <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span class="text-forest">Document retrieved from <strong>orders</strong> collection</span>
+                        <span class="text-sage text-sm ml-auto">8 minutes ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080"; // REST API URL
+
+    // Navigation
+    function showSection(sectionName) {
+        // Hide all sections
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.add('hidden');
+        });
+
+        // Remove active class from all sidebar items
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Show selected section
+        document.getElementById(sectionName + '-section').classList.remove('hidden');
+
+        // Add active class to clicked sidebar item
+        event.target.classList.add('active');
+    }
+
+    // Helper to toggle loading state
+    function setLoading(buttonId, spinnerId, textId, isLoading) {
+        const button = document.getElementById(buttonId);
+        const spinner = document.getElementById(spinnerId);
+        const text = document.getElementById(textId);
+
+        if (isLoading) {
+            button.disabled = true;
+            spinner.classList.remove("hidden");
+            text.classList.add("opacity-50");
+        } else {
+            button.disabled = false;
+            spinner.classList.add("hidden");
+            text.classList.remove("opacity-50");
+        }
+    }
+
+    async function insertDocument() {
+        const collection = document.getElementById("insertCollection").value.trim();
+        const documentText = document.getElementById("insertDocument").value.trim();
+        const resultElement = document.getElementById("insertResult");
+
+        if (!collection || !documentText) {
+            resultElement.textContent = "Collection and document are required.";
+            resultElement.className = "text-red-600 font-mono text-sm";
+            return;
+        }
+
+        setLoading("insertBtn", "insertSpinner", "insertBtnText", true);
+
+        try {
+            const response = await fetch(`${BASE_URL}/insert?collection=${encodeURIComponent(collection)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: documentText
+            });
+            const data = await response.json();
+            resultElement.textContent = data.message || JSON.stringify(data, null, 2);
+            resultElement.className = response.ok ? "text-green-600 font-mono text-sm" : "text-red-600 font-mono text-sm";
+        } catch (error) {
+            resultElement.textContent = `Error: ${error.message}`;
+            resultElement.className = "text-red-600 font-mono text-sm";
+        } finally {
+            setLoading("insertBtn", "insertSpinner", "insertBtnText", false);
+        }
+    }
+
+    async function getDocument() {
+        const collection = document.getElementById("getCollection").value.trim();
+        const id = document.getElementById("getId").value.trim();
+        const resultElement = document.getElementById("getResult");
+
+        if (!collection || !id) {
+            resultElement.textContent = "Collection and ID are required.";
+            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
+            return;
+        }
+
+        setLoading("getBtn", "getSpinner", "getBtnText", true);
+
+        try {
+            const response = await fetch(`${BASE_URL}/get?collection=${encodeURIComponent(collection)}&id=${encodeURIComponent(id)}`);
+            const data = await response.json();
+            resultElement.textContent = data.document || data.message || JSON.stringify(data, null, 2);
+            resultElement.className = response.ok ? "text-green-600 font-mono text-sm whitespace-pre-wrap" : "text-red-600 font-mono text-sm whitespace-pre-wrap";
+        } catch (error) {
+            resultElement.textContent = `Error: ${error.message}`;
+            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
+        } finally {
+            setLoading("getBtn", "getSpinner", "getBtnText", false);
+        }
+    }
+
+    async function queryDocuments() {
+        const collection = document.getElementById("queryCollection").value.trim();
+        const field = document.getElementById("queryField").value.trim();
+        const value = document.getElementById("queryValue").value.trim();
+        const resultElement = document.getElementById("queryResult");
+
+        if (!collection || !field || !value) {
+            resultElement.textContent = "Collection, field, and value are required.";
+            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
+            return;
+        }
+
+        setLoading("queryBtn", "querySpinner", "queryBtnText", true);
+
+        try {
+            const response = await fetch(`${BASE_URL}/query?collection=${encodeURIComponent(collection)}&field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`);
+            const data = await response.json();
+            resultElement.textContent = data.documents ? JSON.stringify(data.documents, null, 2) : data.message;
+            resultElement.className = response.ok ? "text-green-600 font-mono text-sm whitespace-pre-wrap" : "text-red-600 font-mono text-sm whitespace-pre-wrap";
+        } catch (error) {
+            resultElement.textContent = `Error: ${error.message}`;
+            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
+        } finally {
+            setLoading("queryBtn", "querySpinner", "queryBtnText", false);
+        }
+    }
+</script>
+</body>
+</html>

@@ -337,4 +337,91 @@ public class DatabaseServiceImpl extends DatabaseServiceGrpc.DatabaseServiceImpl
             return documents;
         }
     }
+    // --- Synchronous helper methods for REST API ---
+    public InsertResponse insertSync(String collection, String id, String document) {
+        InsertRequest request = InsertRequest.newBuilder()
+                .setCollection(collection)
+                .setId(id == null ? "" : id)
+                .setDocument(document)
+                .build();
+
+        final InsertResponse[] responseHolder = new InsertResponse[1];
+        insert(request, new StreamObserver<InsertResponse>() {
+            @Override
+            public void onNext(InsertResponse value) {
+                responseHolder[0] = value;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                responseHolder[0] = InsertResponse.newBuilder()
+                        .setSuccess(false)
+                        .setError(t.getMessage())
+                        .setCode(ErrorCode.INTERNAL_ERROR)
+                        .build();
+            }
+
+            @Override
+            public void onCompleted() { }
+        });
+        return responseHolder[0];
+    }
+
+    public GetResponse getSync(String collection, String id) {
+        GetRequest request = GetRequest.newBuilder()
+                .setCollection(collection)
+                .setId(id)
+                .build();
+
+        final GetResponse[] responseHolder = new GetResponse[1];
+        get(request, new StreamObserver<GetResponse>() {
+            @Override
+            public void onNext(GetResponse value) {
+                responseHolder[0] = value;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                responseHolder[0] = GetResponse.newBuilder()
+                        .setSuccess(false)
+                        .setError(t.getMessage())
+                        .setCode(ErrorCode.INTERNAL_ERROR)
+                        .build();
+            }
+
+            @Override
+            public void onCompleted() { }
+        });
+        return responseHolder[0];
+    }
+
+    public QueryResponse querySync(String collection, String field, String value) {
+        QueryRequest request = QueryRequest.newBuilder()
+                .setCollection(collection)
+                .setField(field)
+                .setValue(value)
+                .build();
+
+        final QueryResponse[] responseHolder = new QueryResponse[1];
+        query(request, new StreamObserver<QueryResponse>() {
+            @Override
+            public void onNext(QueryResponse value) {
+                responseHolder[0] = value;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                responseHolder[0] = QueryResponse.newBuilder()
+                        .setSuccess(false)
+                        .setError(t.getMessage())
+                        .setCode(ErrorCode.INTERNAL_ERROR)
+                        .build();
+            }
+
+            @Override
+            public void onCompleted() { }
+        });
+        return responseHolder[0];
+    }
+
 }
