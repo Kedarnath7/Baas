@@ -19,57 +19,15 @@
             }
         }
     </script>
-    <style>
-        .glass-morphism {
-            background: rgba(244, 241, 232, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar-item {
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-item:hover {
-            background: rgba(143, 173, 136, 0.1);
-            transform: translateX(4px);
-        }
-
-        .sidebar-item.active {
-            background: rgba(143, 173, 136, 0.2);
-            border-right: 3px solid #8fad88;
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(45, 80, 22, 0.1);
-        }
-
-        .result-panel {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .result-panel::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .result-panel::-webkit-scrollbar-track {
-            background: #f4f1e8;
-            border-radius: 3px;
-        }
-
-        .result-panel::-webkit-scrollbar-thumb {
-            background: #8fad88;
-            border-radius: 3px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-cream min-h-screen">
+<script>
+    // Redirect to login if no auth token is found
+    if (!localStorage.getItem("authToken")) {
+        window.location.href = "login.html";
+    }
+</script>
 <!-- Navigation Bar -->
 <nav class="bg-forest text-cream px-6 py-4 shadow-lg">
     <div class="flex items-center justify-between">
@@ -134,6 +92,7 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-8">
+
         <!-- Insert Document Section -->
         <div id="insert-section" class="section">
             <div class="mb-6">
@@ -317,127 +276,6 @@ Multiple: [{"name":"Alice","age":30},{"name":"Bob","age":25}]'
     </div>
 </div>
 
-<script>
-    const BASE_URL = "http://localhost:8080"; // REST API URL
-
-    // Navigation
-    function showSection(sectionName) {
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.add('hidden');
-        });
-
-        // Remove active class from all sidebar items
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.classList.remove('active');
-        });
-
-        // Show selected section
-        document.getElementById(sectionName + '-section').classList.remove('hidden');
-
-        // Add active class to clicked sidebar item
-        event.target.classList.add('active');
-    }
-
-    // Helper to toggle loading state
-    function setLoading(buttonId, spinnerId, textId, isLoading) {
-        const button = document.getElementById(buttonId);
-        const spinner = document.getElementById(spinnerId);
-        const text = document.getElementById(textId);
-
-        if (isLoading) {
-            button.disabled = true;
-            spinner.classList.remove("hidden");
-            text.classList.add("opacity-50");
-        } else {
-            button.disabled = false;
-            spinner.classList.add("hidden");
-            text.classList.remove("opacity-50");
-        }
-    }
-
-    async function insertDocument() {
-        const collection = document.getElementById("insertCollection").value.trim();
-        const documentText = document.getElementById("insertDocument").value.trim();
-        const resultElement = document.getElementById("insertResult");
-
-        if (!collection || !documentText) {
-            resultElement.textContent = "Collection and document are required.";
-            resultElement.className = "text-red-600 font-mono text-sm";
-            return;
-        }
-
-        setLoading("insertBtn", "insertSpinner", "insertBtnText", true);
-
-        try {
-            const response = await fetch(`${BASE_URL}/insert?collection=${encodeURIComponent(collection)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: documentText
-            });
-            const data = await response.json();
-            resultElement.textContent = data.message || JSON.stringify(data, null, 2);
-            resultElement.className = response.ok ? "text-green-600 font-mono text-sm" : "text-red-600 font-mono text-sm";
-        } catch (error) {
-            resultElement.textContent = `Error: ${error.message}`;
-            resultElement.className = "text-red-600 font-mono text-sm";
-        } finally {
-            setLoading("insertBtn", "insertSpinner", "insertBtnText", false);
-        }
-    }
-
-    async function getDocument() {
-        const collection = document.getElementById("getCollection").value.trim();
-        const id = document.getElementById("getId").value.trim();
-        const resultElement = document.getElementById("getResult");
-
-        if (!collection || !id) {
-            resultElement.textContent = "Collection and ID are required.";
-            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
-            return;
-        }
-
-        setLoading("getBtn", "getSpinner", "getBtnText", true);
-
-        try {
-            const response = await fetch(`${BASE_URL}/get?collection=${encodeURIComponent(collection)}&id=${encodeURIComponent(id)}`);
-            const data = await response.json();
-            resultElement.textContent = data.document || data.message || JSON.stringify(data, null, 2);
-            resultElement.className = response.ok ? "text-green-600 font-mono text-sm whitespace-pre-wrap" : "text-red-600 font-mono text-sm whitespace-pre-wrap";
-        } catch (error) {
-            resultElement.textContent = `Error: ${error.message}`;
-            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
-        } finally {
-            setLoading("getBtn", "getSpinner", "getBtnText", false);
-        }
-    }
-
-    async function queryDocuments() {
-        const collection = document.getElementById("queryCollection").value.trim();
-        const field = document.getElementById("queryField").value.trim();
-        const value = document.getElementById("queryValue").value.trim();
-        const resultElement = document.getElementById("queryResult");
-
-        if (!collection || !field || !value) {
-            resultElement.textContent = "Collection, field, and value are required.";
-            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
-            return;
-        }
-
-        setLoading("queryBtn", "querySpinner", "queryBtnText", true);
-
-        try {
-            const response = await fetch(`${BASE_URL}/query?collection=${encodeURIComponent(collection)}&field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`);
-            const data = await response.json();
-            resultElement.textContent = data.documents ? JSON.stringify(data.documents, null, 2) : data.message;
-            resultElement.className = response.ok ? "text-green-600 font-mono text-sm whitespace-pre-wrap" : "text-red-600 font-mono text-sm whitespace-pre-wrap";
-        } catch (error) {
-            resultElement.textContent = `Error: ${error.message}`;
-            resultElement.className = "text-red-600 font-mono text-sm whitespace-pre-wrap";
-        } finally {
-            setLoading("queryBtn", "querySpinner", "queryBtnText", false);
-        }
-    }
-</script>
+<script src = "app.js"></script>
 </body>
 </html>

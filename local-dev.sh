@@ -18,7 +18,7 @@ print_error() { echo -e "${RED}❌ $1${NC}"; }
 print_example() { echo -e "${CYAN}💡 $1${NC}"; }
 
 # Config
-SERVER_PORT=9090
+SERVER_PORT=8080
 SERVER_HOST="localhost"
 PID_FILE=".baas-server.pid"
 LOG_FILE="logs/baas-server.log"

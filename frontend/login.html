@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniBaaS Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: '#2d5016',
+                        sage: '#8fad88',
+                        beige: '#c5b896',
+                        cream: '#f4f1e8'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-cream min-h-screen flex items-center justify-center">
+<div class="glass-morphism p-10 rounded-2xl shadow-xl w-full max-w-md">
+    <h1 class="text-3xl font-bold text-forest mb-6 text-center">MiniBaaS Login</h1>
+    <div class="space-y-4">
+        <input id="username" type="text" placeholder="Username"
+               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
+        <input id="password" type="password" placeholder="Password"
+               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
+        <button onclick="login()" class="bg-forest text-cream w-full py-3 rounded-xl hover:bg-opacity-90 transition-all font-semibold">
+            Login
+        </button>
+        <p id="loginResult" class="text-center text-red-600 text-sm"></p>
+    </div>
+    <p class="text-center mt-4 text-sage">
+        Don't have an account? <a href="signup.html" class="text-forest font-semibold hover:underline">Sign up</a>
+    </p>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080";
+
+    async function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const result = document.getElementById("loginResult");
+
+        if (!username || !password) {
+            result.textContent = "Username and password are required.";
+            return;
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.setItem("authToken", data.token);
+                window.location.href = "index.html";
+            } else {
+                result.textContent = data.error || "Login failed";
+            }
+        } catch (error) {
+            result.textContent = `Error: ${error.message}`;
+        }
+    }
+</script>
+</body>
+</html>
