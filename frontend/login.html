@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,33 +11,62 @@
             theme: {
                 extend: {
                     colors: {
-                        forest: '#2d5016',
-                        sage: '#8fad88',
-                        beige: '#c5b896',
-                        cream: '#f4f1e8'
+                        forest: '#1A4D2E',
+                        sage: '#4F6F52',
+                        beige: '#E8DFCA',
+                        cream: '#F5EFE6'
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        .glass-morphism {
+            background: rgba(245, 239, 230, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(232, 223, 202, 0.3);
+        }
+    </style>
 </head>
-<body class="bg-cream min-h-screen flex items-center justify-center">
-<div class="glass-morphism p-10 rounded-2xl shadow-xl w-full max-w-md">
-    <h1 class="text-3xl font-bold text-forest mb-6 text-center">MiniBaaS Login</h1>
-    <div class="space-y-4">
-        <input id="username" type="text" placeholder="Username"
-               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
-        <input id="password" type="password" placeholder="Password"
-               class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
-        <button onclick="login()" class="bg-forest text-cream w-full py-3 rounded-xl hover:bg-opacity-90 transition-all font-semibold">
-            Login
-        </button>
-        <p id="loginResult" class="text-center text-red-600 text-sm"></p>
+<body class="bg-cream min-h-screen">
+<nav class="bg-forest text-cream px-6 py-4 shadow-lg">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-sage rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-forest" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold">SandBoxDB</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="p-2 hover:bg-sage hover:bg-opacity-20 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </button>
+        </div>
     </div>
-    <p class="text-center mt-4 text-sage">
-        Don't have an account? <a href="signup.html" class="text-forest font-semibold hover:underline">Sign up</a>
-    </p>
+</nav>
+
+<div class="flex items-center justify-center" style="min-height: calc(100vh - 80px);">
+    <div class="glass-morphism p-10 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-forest mb-6 text-center">Login</h1>
+        <div class="space-y-4">
+            <input id="username" type="text" placeholder="Username"
+                   class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
+            <input id="password" type="password" placeholder="Password"
+                   class="w-full p-4 border-2 border-beige rounded-xl focus:outline-none focus:border-sage bg-white">
+            <button onclick="login()" class="bg-forest text-cream w-full py-3 rounded-xl hover:bg-opacity-90 transition-all font-semibold">
+                Login
+            </button>
+            <p id="loginResult" class="text-center text-red-600 text-sm"></p>
+        </div>
+        <p class="text-center mt-4 text-sage">
+            Don't have an account? <a href="signup.html" class="text-forest font-semibold hover:underline">Sign up</a>
+        </p>
+    </div>
 </div>
 
 <script>

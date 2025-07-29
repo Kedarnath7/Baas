@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="cec7c476-923f-474d-bb6b-dd62858dc771" name="Changes" comment="">
       <change beforePath="K:/BaaS/.idea/workspace.xml" beforeDir="false" afterPath="K:/BaaS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="K:/BaaS/frontend/app.js" beforeDir="false" afterPath="K:/BaaS/frontend/app.js" afterDir="false" />
       <change beforePath="K:/BaaS/frontend/index.html" beforeDir="false" afterPath="K:/BaaS/frontend/index.html" afterDir="false" />
-      <change beforePath="K:/BaaS/frontend/styles.css" beforeDir="false" afterPath="K:/BaaS/frontend/styles.css" afterDir="false" />
-      <change beforePath="K:/BaaS/local-dev.sh" beforeDir="false" afterPath="K:/BaaS/local-dev.sh" afterDir="false" />
-      <change beforePath="K:/BaaS/src/main/java/baas/server/RestApiServer.java" beforeDir="false" afterPath="K:/BaaS/src/main/java/baas/server/RestApiServer.java" afterDir="false" />
+      <change beforePath="K:/BaaS/frontend/login.html" beforeDir="false" afterPath="K:/BaaS/frontend/login.html" afterDir="false" />
+      <change beforePath="K:/BaaS/frontend/signup.html" beforeDir="false" afterPath="K:/BaaS/frontend/signup.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,6 +174,17 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.key" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
